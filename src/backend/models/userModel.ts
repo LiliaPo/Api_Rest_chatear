@@ -123,3 +123,15 @@ export async function updateUser(userId: string, data: Partial<User>): Promise<U
     const result = await pool.query(queryString, values);
     return result.rows[0] || null;
 }
+
+export const createUser = async (userData: any) => {
+    const { userName, name, first_surname, email, password } = userData;
+    const query = `
+        INSERT INTO "user" (userName, name, first_surname, email, password)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
+    `;
+    const values = [userName, name, first_surname, email, password];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+};

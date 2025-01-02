@@ -26,42 +26,21 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
     }
 }
 
-export async function createUser(req: Request, res: Response): Promise<void> {
+export const createUser = async (req: Request, res: Response) => {
     try {
-        console.log('Datos recibidos en el controlador:', req.body);
-
-        const userData = {
-            userName: req.body.userName,
-            name: req.body.name,
-            first_surname: req.body.first_surname,
-            email: req.body.email,
-            password: req.body.password
-        };
-
-        // Validar que todos los campos necesarios estén presentes
-        const requiredFields = ['userName', 'name', 'first_surname', 'email', 'password'];
-        for (const field of requiredFields) {
-            if (!userData[field as keyof typeof userData]) {
-                res.status(400).json({ message: `El campo ${field} es requerido` });
-                return;
-            }
-        }
-
-        const newUser = await userModel.saveNewUser(userData);
+        const newUser = await userModel.createUser(req.body);
         res.status(201).json({
-            success: true,
-            message: "Usuario creado correctamente",
-            user: newUser
+            status: "success",
+            data: newUser,
+            redirect: '/chat.html'
         });
-    } catch (error: any) {
-        console.error('Error en createUser:', error);
-        if (error.code === '23505') {
-            res.status(409).json({ message: "El usuario o email ya existe" });
-        } else {
-            res.status(500).json({ message: "Error al crear usuario" });
-        }
+    } catch (error) {
+        res.status(500).json({
+            status: "error",
+            message: error instanceof Error ? error.message : "Error desconocido"
+        });
     }
-}
+};
 
 export async function deleteUser(req: Request, res: Response): Promise<void> {
     try {
