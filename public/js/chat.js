@@ -83,10 +83,16 @@ class ChatManager {
     }
 
     createMessageElement(message) {
-        const isOwnMessage = message.senderId === this.currentUserId;
+        const isOwnMessage = message.sender_id === parseInt(this.currentUserId);
+        const time = new Date(message.created_at).toLocaleTimeString('es', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
         return `
             <div class="message ${isOwnMessage ? 'sent' : 'received'}">
-                ${message.content}
+                <div class="message-content">${message.content}</div>
+                <div class="message-time">${time}</div>
             </div>
         `;
     }
@@ -96,8 +102,8 @@ class ChatManager {
         if (!this.selectedUserId || !this.messageInput.value.trim()) return;
 
         const messageData = {
-            senderId: this.currentUserId,
-            receiverId: this.selectedUserId,
+            sender_id: parseInt(this.currentUserId),
+            receiver_id: parseInt(this.selectedUserId),
             content: this.messageInput.value.trim()
         };
 
@@ -108,15 +114,24 @@ class ChatManager {
                 body: JSON.stringify(messageData)
             });
 
+            const result = await response.json();
+
             if (response.ok) {
+                // Usar el mensaje devuelto por el servidor en lugar del messageData
                 const messages = this.chats.get(this.selectedUserId) || [];
-                messages.push(messageData);
+                messages.push(result.data); // Usar result.data que incluye id y created_at
                 this.chats.set(this.selectedUserId, messages);
                 this.displayMessages(this.selectedUserId);
                 this.messageInput.value = '';
+                
+                // Auto-scroll al último mensaje
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            } else {
+                alert(result.message || 'Error al enviar mensaje');
             }
         } catch (error) {
-            console.error('Error enviando mensaje:', error);
+            console.error('Error:', error);
+            alert('Error al enviar mensaje');
         }
     }
 }

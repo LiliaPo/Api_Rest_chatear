@@ -20,6 +20,20 @@ type AsyncRequestHandler<P = {}, ResBody = any, ReqBody = any> = (
     next: NextFunction
 ) => Promise<void>;
 
+interface LoginResponse {
+    message: string;
+    user?: {
+        id: number;
+        userName: string;
+        email: string;
+    };
+    debug?: {
+        provided: string;
+        stored: string;
+        note?: string;
+    };
+}
+
 export const getAllUsers: RequestHandler = async (req, res) => {
     try {
         const users = await userModel.getAllUsers();
@@ -114,34 +128,62 @@ export const updateUser: RequestHandler = async (req, res) => {
     }
 };
 
-export const loginUser: RequestHandler = async (req, res) => {
+export const loginUser: AsyncRequestHandler<{}, LoginResponse> = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
             res.status(400).json({ message: "Email y contraseña son requeridos" });
-            return;
-        }
+        } else {
+            // Primero, buscar el usuario y mostrar el resultado completo
+            const queryString = `SELECT * FROM "user" WHERE email = $1`;
+            console.log('Ejecutando query:', queryString, 'con email:', email);
+            
+            const result = await pool.query(queryString, [email]);
+            console.log('Resultado completo de la query:', result.rows);
 
-        const queryString = `SELECT * FROM "user" WHERE email = $1`;
-        const result = await pool.query(queryString, [email]);
-        const user = result.rows[0];
+            const user = result.rows[0];
 
-        if (!user || user.password !== password) {
-            res.status(401).json({ message: "Email o contraseña incorrectos" });
-            return;
-        }
+            // Log detallado de la comparación
+            console.log('Comparación de contraseñas:', {
+                emailBuscado: email,
+                emailEncontrado: user?.email,
+                contraseñaProporcionada: {
+                    valor: password,
+                    longitud: password?.length,
+                    caracteres: [...password].map(c => ({char: c, code: c.charCodeAt(0)}))
+                },
+                contraseñaAlmacenada: {
+                    valor: user?.password,
+                    longitud: user?.password?.length,
+                    caracteres: [...(user?.password || '')].map(c => ({char: c, code: c.charCodeAt(0)}))
+                }
+            });
 
-        res.json({
-            message: "Login exitoso",
-            user: {
-                id: user.id,
-                userName: user.userName,
-                email: user.email
+            if (!user) {
+                res.status(401).json({ message: "Usuario no encontrado" });
+            } else if (user.password !== password) {
+                res.status(401).json({ 
+                    message: "Contraseña incorrecta",
+                    debug: {
+                        provided: password,
+                        stored: user.password,
+                        note: "Las contraseñas deben coincidir exactamente"
+                    }
+                });
+            } else {
+                res.json({
+                    message: "Login exitoso",
+                    user: {
+                        id: user.id,
+                        userName: user.userName,
+                        email: user.email
+                    }
+                });
             }
-        });
+        }
     } catch (error) {
         console.error('Error en login:', error);
-        res.status(500).json({ message: "Error al iniciar sesión" });
+        next(error);
     }
 };

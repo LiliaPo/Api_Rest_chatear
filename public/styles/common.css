@@ -1,0 +1,213 @@
+:root {
+    --color-primary: #B8A7E0;    /* Lila pastel */
+    --color-secondary: #FFD6E5;   /* Rosa pastel */
+    --color-accent: #A7C7E7;      /* Azul pastel */
+    --color-light: #F8F6FF;       /* Lila muy claro */
+    --color-dark: #6B5B95;        /* Lila oscuro */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(
+        rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.5)
+    ), url('../images/imag2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(184, 167, 224, 0.2);
+    backdrop-filter: blur(10px);
+    margin: 20px auto;
+}
+
+.form-control {
+    border: 1px solid rgba(184, 167, 224, 0.3);
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+    background: rgba(248, 246, 255, 0.8);
+}
+
+.form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(184, 167, 224, 0.25);
+}
+
+.btn {
+    border-radius: 25px;
+    padding: 8px 25px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-dark);
+    transform: scale(1.05);
+}
+
+.btn-link {
+    color: var(--color-dark);
+}
+
+.btn-link:hover {
+    color: var(--color-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-dark);
+}
+
+/* Personalizar scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(248, 246, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-dark);
+}
+
+/* Estilos para formularios y contenedores */
+.form-container {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(184, 167, 224, 0.2);
+    backdrop-filter: blur(10px);
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Estilos para inputs y botones */
+.form-control {
+    background-color: rgba(248, 246, 255, 0.8);
+    border: 1px solid rgba(184, 167, 224, 0.3);
+    border-radius: 25px;
+}
+
+.form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(184, 167, 224, 0.25);
+}
+
+.input-group-text {
+    background-color: rgba(248, 246, 255, 0.8);
+    border: 1px solid rgba(184, 167, 224, 0.3);
+    color: var(--color-dark);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-dark);
+    transform: scale(1.05);
+}
+
+.btn-link {
+    color: var(--color-dark);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+/* Estilos para textos */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--color-dark);
+    font-weight: 500;
+}
+
+.display-4 {
+    color: var(--color-dark);
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+/* Personalizar alerts */
+.alert {
+    border-radius: 15px;
+    background-color: rgba(248, 246, 255, 0.9);
+    border: 1px solid rgba(184, 167, 224, 0.3);
+}
+
+.alert-success {
+    background-color: rgba(184, 167, 224, 0.2);
+    border-color: var(--color-primary);
+    color: var(--color-dark);
+}
+
+/* Personalizar labels */
+.form-label {
+    color: var(--color-dark);
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+/* Añadir después de los estilos de btn-primary */
+.btn-accent {
+    background-color: var(--color-accent);
+    border: none;
+    color: white;
+}
+
+.btn-accent:hover {
+    background-color: #8BAFD3;  /* Un tono más oscuro del azul pastel */
+    color: white;
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    border: none;
+    color: var(--color-dark);
+}
+
+.btn-secondary:hover {
+    background-color: #FFB5D0;  /* Un tono más oscuro del rosa pastel */
+    color: var(--color-dark);
+    transform: scale(1.05);
+}
+
+hr {
+    border-color: rgba(184, 167, 224, 0.3);
+    opacity: 0.5;
+} 

@@ -2,28 +2,23 @@ import pool from "../config/configDb.js";
 
 export interface Message {
     id?: number;
-    senderId: number;
-    receiverId: number;
+    sender_id: number;
+    receiver_id: number;
     content: string;
-    timestamp?: Date;
+    created_at?: Date;
     read?: boolean;
 }
 
 export async function createMessage(message: Message): Promise<Message> {
     try {
-        console.log('Creando mensaje:', message);
-        
         const query = `
             INSERT INTO messages (sender_id, receiver_id, content)
             VALUES ($1, $2, $3)
-            RETURNING id, sender_id as "senderId", receiver_id as "receiverId", 
-                      content, timestamp, read;
+            RETURNING *;
         `;
         
-        const values = [message.senderId, message.receiverId, message.content];
+        const values = [message.sender_id, message.receiver_id, message.content];
         const result = await pool.query(query, values);
-        
-        console.log('Mensaje creado:', result.rows[0]);
         return result.rows[0];
     } catch (error) {
         console.error('Error en createMessage:', error);

@@ -1,32 +1,33 @@
+:root {
+    --color-primary: #B8A7E0;    /* Lila pastel */
+    --color-secondary: #FFD6E5;   /* Rosa pastel */
+    --color-accent: #A7C7E7;      /* Azul pastel */
+    --color-light: #F8F6FF;       /* Lila muy claro */
+    --color-dark: #6B5B95;        /* Lila oscuro */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(
+        rgba(255, 255, 255, 0.5),
+        rgba(255, 255, 255, 0.5)
+    ), url('../images/imag2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
 .chat-container {
+    background-color: rgba(255, 255, 255, 0.2);
     height: 90vh;
     margin: 20px;
-    border-radius: 10px;
+    border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.users-list {
-    height: 100%;
-    background: #f8f9fa;
-    border-right: 1px solid #dee2e6;
-    overflow-y: auto;
-}
-
-.user-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid #dee2e6;
-    transition: background-color 0.3s;
-}
-
-.user-item:hover {
-    background-color: #e9ecef;
-}
-
-.user-item.active {
-    background-color: #0d6efd;
-    color: white;
+    box-shadow: 0 0 20px rgba(184, 167, 224, 0.2);
+    backdrop-filter: blur(10px);
 }
 
 .chat-area {
@@ -35,38 +36,120 @@
     flex-direction: column;
 }
 
-.chat-header {
-    padding: 15px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
 .chat-messages {
     flex-grow: 1;
     overflow-y: auto;
     padding: 20px;
 }
 
+.chat-header {
+    padding: 15px;
+    background: rgba(248, 246, 255, 0.4);
+    border-bottom: 1px solid rgba(184, 167, 224, 0.3);
+    font-weight: 500;
+}
+
+.chat-input {
+    padding: 15px;
+    background: rgba(248, 246, 255, 0.4);
+    border-top: 1px solid rgba(184, 167, 224, 0.3);
+    margin-top: auto;  /* Asegura que esté al final */
+}
+
+.message-content {
+    margin-bottom: 4px;
+    word-wrap: break-word;
+}
+
+.users-list {
+    height: 100%;
+    background: rgba(248, 246, 255, 0.4);
+    border-right: 1px solid rgba(184, 167, 224, 0.3);
+    overflow-y: auto;
+}
+
+.user-item {
+    padding: 12px 18px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(184, 167, 224, 0.2);
+    transition: all 0.3s ease;
+}
+
+.user-item:hover {
+    background-color: rgba(184, 167, 224, 0.2);
+}
+
+.user-item.active {
+    background-color: var(--color-primary);
+    color: white;
+}
+
 .message {
     margin-bottom: 15px;
-    padding: 10px 15px;
-    border-radius: 15px;
+    padding: 12px 18px;
+    border-radius: 18px;
     max-width: 70%;
+    position: relative;
+    font-weight: 300;
 }
 
 .message.sent {
     margin-left: auto;
-    background-color: #0d6efd;
+    background-color: var(--color-primary);
     color: white;
 }
 
 .message.received {
     margin-right: auto;
-    background-color: #e9ecef;
+    background-color: rgba(248, 246, 255, 0.8);
+    color: var(--color-dark);
 }
 
-.chat-input {
-    padding: 15px;
-    background: #f8f9fa;
-    border-top: 1px solid #dee2e6;
+.message-time {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.chat-input .form-control {
+    border: 1px solid rgba(184, 167, 224, 0.3);
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.chat-input .btn {
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.chat-input .btn:hover {
+    background-color: var(--color-dark);
+    transform: scale(1.05);
+}
+
+/* Personalizar scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(248, 246, 255, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-dark);
 } 
