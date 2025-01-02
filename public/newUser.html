@@ -3,112 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>Registro - Sistema de Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="/styles/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles/common.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container mt-4">
-        <button onclick="window.location.href='index.html'" class="btn btn-secondary mb-3">
-            <i class="bi bi-arrow-left"></i> Volver
-        </button>
-
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Registro de Usuario</h3>
+    <div class="hero">
+        <div class="content text-center">
+            <h1 class="display-4">Crear Cuenta</h1>
+            <div class="form-container">
+                <div class="mb-4">
+                    <i class="bi bi-person-plus" style="font-size: 4rem; color: var(--color-primary);"></i>
+                </div>
+                <form id="registerForm" onsubmit="registerUser(event)">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Nombre de Usuario</label>
+                        <input type="text" class="form-control" id="userName" name="userName" required>
                     </div>
-                    <div class="card-body">
-                        <form id="registerForm" onsubmit="registerUser(event)">
-                            <div class="mb-3">
-                                <label for="userName" class="form-label">Nombre de Usuario</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="userName" 
-                                       name="userName" 
-                                       required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Nombre</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="name" 
-                                       name="name" 
-                                       required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="first_surname" class="form-label">Apellido</label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="first_surname" 
-                                       name="first_surname" 
-                                       required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" 
-                                       class="form-control" 
-                                       id="email" 
-                                       name="email" 
-                                       required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <div class="input-group">
-                                    <input type="password" 
-                                           class="form-control" 
-                                           id="password" 
-                                           name="password" 
-                                           required>
-                                    <span class="input-group-text">
-                                        <i class="bi bi-eye" id="togglePassword"></i>
-                                    </span>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Registrarse</button>
-                        </form>
-                        <hr>
-                        <div class="text-center">
-                            <p>¿Ya tienes una cuenta?</p>
-                            <a href="login.html" class="btn btn-secondary">Iniciar Sesión</a>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_surname" class="form-label">Apellido</label>
+                        <input type="text" class="form-control" id="first_surname" name="first_surname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <span class="input-group-text">
+                                <i class="bi bi-eye" id="togglePassword"></i>
+                            </span>
+                        </div>
+                        <div class="form-text mt-2">
+                            <small class="text-muted">
+                                La contraseña debe tener al menos:
+                                <ul class="mb-0 mt-1">
+                                    <li>8 caracteres</li>
+                                    <li>Una mayúscula</li>
+                                    <li>Una minúscula</li>
+                                    <li>Un número</li>
+                                    <li>Un carácter especial (!@#$%^&*(),.?":{}|<>)</li>
+                                </ul>
+                            </small>
                         </div>
                     </div>
-                </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus-fill me-2"></i>
+                            Registrarse
+                        </button>
+                        <a href="index.html" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Volver al Inicio
+                        </a>
+                    </div>
+                </form>
+                <hr class="my-4">
+                <p class="text-muted">¿Ya tienes una cuenta?</p>
+                <a href="login.html" class="btn btn-accent">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Iniciar Sesión
+                </a>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function validatePassword(input) {
-            const password = input.value;
-            const requirements = {
-                length: password.length >= 8,
-                uppercase: /[A-Z]/.test(password),
-                number: /\d/.test(password),
-                special: /[@$!%*?&]/.test(password)
-            };
-
-            let message = '';
-            if (!requirements.length) message += 'Mínimo 8 caracteres. ';
-            if (!requirements.uppercase) message += 'Falta una mayúscula. ';
-            if (!requirements.number) message += 'Falta un número. ';
-            if (!requirements.special) message += 'Falta un carácter especial (@$!%*?&). ';
-
-            const helpText = document.getElementById('passwordHelp');
-            helpText.textContent = message;
-            
-            // Cambiar el color del borde según la validación
-            input.style.borderColor = message ? '#dc3545' : '#198754';
-        }
-
         async function registerUser(event) {
             event.preventDefault();
             const formData = new FormData(event.target);
             const userData = Object.fromEntries(formData);
-
-            console.log('Enviando datos:', userData);
 
             try {
                 const response = await fetch('/api/users', {
@@ -119,9 +92,7 @@
                     body: JSON.stringify(userData)
                 });
 
-                console.log('Respuesta status:', response.status);
                 const result = await response.json();
-                console.log('Respuesta:', result);
 
                 if (response.ok) {
                     localStorage.setItem('userId', result.data.id);
@@ -136,10 +107,7 @@
             }
         }
 
-        document.getElementById('registerForm').addEventListener('submit', registerUser);
-    </script>
-
-    <script>
+        // Toggle password visibility
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
 
@@ -150,7 +118,5 @@
             this.classList.toggle('bi-eye-slash');
         });
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

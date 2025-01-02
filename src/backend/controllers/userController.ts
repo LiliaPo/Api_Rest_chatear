@@ -34,6 +34,32 @@ interface LoginResponse {
     };
 }
 
+function validatePassword(password: string): { isValid: boolean; message: string } {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (password.length < minLength) {
+        return { isValid: false, message: `La contraseña debe tener al menos ${minLength} caracteres` };
+    }
+    if (!hasUpperCase) {
+        return { isValid: false, message: "La contraseña debe tener al menos una mayúscula" };
+    }
+    if (!hasLowerCase) {
+        return { isValid: false, message: "La contraseña debe tener al menos una minúscula" };
+    }
+    if (!hasNumbers) {
+        return { isValid: false, message: "La contraseña debe tener al menos un número" };
+    }
+    if (!hasSpecialChar) {
+        return { isValid: false, message: "La contraseña debe tener al menos un carácter especial" };
+    }
+
+    return { isValid: true, message: "Contraseña válida" };
+}
+
 export const getAllUsers: RequestHandler = async (req, res) => {
     try {
         const users = await userModel.getAllUsers();
@@ -65,29 +91,56 @@ export const getUserById: RequestHandler = async (req, res) => {
 export const createUser: AsyncRequestHandler<{}, CreateUserResponse, User> = async (req, res, next) => {
     try {
         const { userName, name, first_surname, email, password } = req.body;
+        
         if (!userName || !name || !first_surname || !email || !password) {
             res.status(400).json({
                 status: "error",
                 message: "Todos los campos son requeridos"
             });
         } else {
-            const newUser = await userModel.createUser({
-                userName, name, first_surname, email, password
-            });
-
-            if (!newUser.id) {
-                throw new Error('Usuario creado sin ID');
+            // Validar contraseña
+            const passwordValidation = validatePassword(password);
+            if (!passwordValidation.isValid) {
+                res.status(400).json({
+                    status: "error",
+                    message: passwordValidation.message
+                });
+                return;
             }
 
-            res.status(201).json({
-                status: "success",
-                data: {
-                    id: newUser.id,
-                    userName: newUser.userName,
-                    email: newUser.email
-                },
-                redirect: '/chat.html'
-            });
+            try {
+                const newUser = await userModel.createUser({
+                    userName, name, first_surname, email, password
+                });
+
+                if (!newUser.id) {
+                    throw new Error('Usuario creado sin ID');
+                }
+
+                res.status(201).json({
+                    status: "success",
+                    data: {
+                        id: newUser.id,
+                        userName: newUser.userName,
+                        email: newUser.email
+                    },
+                    redirect: '/chat.html'
+                });
+            } catch (error: any) {
+                if (error.constraint === 'user_userName_key') {
+                    res.status(400).json({
+                        status: "error",
+                        message: "Este nombre de usuario ya está en uso. Por favor, elige otro."
+                    });
+                } else if (error.constraint === 'user_email_key') {
+                    res.status(400).json({
+                        status: "error",
+                        message: "Este email ya está registrado. Por favor, usa otro o inicia sesión."
+                    });
+                } else {
+                    throw error;
+                }
+            }
         }
     } catch (error) {
         next(error);
