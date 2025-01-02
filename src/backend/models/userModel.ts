@@ -18,7 +18,7 @@ export interface DeleteResult {
 // Obtener todos los usuarios
 export async function getAllUsers(): Promise<User[]> {
     try {
-        const queryString = `SELECT * FROM "user"`;
+        const queryString = 'SELECT * FROM "user" ORDER BY id ASC';
         const result = await pool.query(queryString);
         return result.rows;
     } catch (error) {
@@ -81,47 +81,38 @@ export async function deleteUser(userId: string): Promise<DeleteResult> {
 
 // Actualizar usuario
 export async function updateUser(userId: string, data: Partial<User>): Promise<User | null> {
-    const fields = [];
-    const values = [];
-    let paramCount = 1;
+    try {
+        // Convertir el ID a número y verificar que es válido
+        const id = parseInt(userId);
+        if (isNaN(id)) {
+            throw new Error('ID inválido');
+        }
 
-    if (data.userName) {
-        fields.push(`"userName" = $${paramCount}`);
-        values.push(data.userName);
-        paramCount++;
-    }
-    if (data.name) {
-        fields.push(`"name" = $${paramCount}`);
-        values.push(data.name);
-        paramCount++;
-    }
-    if (data.first_surname) {
-        fields.push(`"first_surname" = $${paramCount}`);
-        values.push(data.first_surname);
-        paramCount++;
-    }
-    if (data.email) {
-        fields.push(`"email" = $${paramCount}`);
-        values.push(data.email);
-        paramCount++;
-    }
-    if (data.password) {
-        fields.push(`"password" = $${paramCount}`);
-        values.push(data.password);
-        paramCount++;
-    }
+        const queryString = `
+            UPDATE "user" 
+            SET 
+                "userName" = $1,
+                "name" = $2,
+                "first_surname" = $3,
+                "email" = $4
+            WHERE id = $5
+            RETURNING *;
+        `;
 
-    if (fields.length === 0) return null;
+        const values = [
+            data.userName,
+            data.name,
+            data.first_surname,
+            data.email,
+            id  // Usamos el ID convertido a número
+        ];
 
-    values.push(userId);
-    const queryString = `
-        UPDATE "user" 
-        SET ${fields.join(', ')} 
-        WHERE id = $${paramCount} 
-        RETURNING *`;
-
-    const result = await pool.query(queryString, values);
-    return result.rows[0] || null;
+        const result = await pool.query(queryString, values);
+        return result.rows[0] || null;
+    } catch (error) {
+        console.error('Error en updateUser:', error);
+        throw error;
+    }
 }
 
 export const createUser = async (userData: any) => {

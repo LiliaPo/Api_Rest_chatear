@@ -1,5 +1,4 @@
-import pkg from 'pg';
-const { Pool } = pkg;
+import pg from 'pg';
 import dotenv from 'dotenv';
 
 // Cargar variables de entorno
@@ -12,29 +11,22 @@ if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
 }
 
 // Configuración de la conexión
-const pool = new Pool({
+const pool = new pg.Pool({
     user: process.env.DB_USER,
-    host: process.env.DB_HOST || 'localhost',
+    host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: parseInt(process.env.DB_PORT || '5432')
+    port: parseInt(process.env.DB_PORT || '5432'),
 });
 
 // Verificar conexión
-pool.connect()
-    .then(client => {
-        console.log('Conexión exitosa a PostgreSQL');
-        console.log(`Conectado a: ${process.env.DB_NAME}`);
-        client.release();
-    })
-    .catch(err => {
-        console.error('Error conectando a PostgreSQL:', {
-            user: process.env.DB_USER,
-            database: process.env.DB_NAME,
-            host: process.env.DB_HOST,
-            port: process.env.DB_PORT,
-            error: err.message
-        });
-    });
+pool.connect((err, client, release) => {
+    if (err) {
+        console.error('Error conectando a la base de datos:', err);
+        return;
+    }
+    console.log('Conexión a la base de datos establecida correctamente');
+    release();
+});
 
 export default pool;

@@ -5,10 +5,14 @@ import * as userModel from '../models/userModel.js';
 export async function getAllUsers(req: Request, res: Response): Promise<void> {
     try {
         const users = await userModel.getAllUsers();
+        console.log('Usuarios encontrados:', users);
         res.json(users);
     } catch (error) {
         console.error('Error al obtener usuarios:', error);
-        res.status(500).json({ message: "Error al obtener usuarios" });
+        res.status(500).json({ 
+            status: "error",
+            message: "Error al obtener usuarios" 
+        });
     }
 }
 
@@ -58,19 +62,53 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
 
 export async function updateUser(req: Request, res: Response): Promise<void> {
     try {
-        const updatedUser = await userModel.updateUser(req.params.id, req.body);
+        const userId = req.params.id;
+        const userData = req.body;
+        
+        console.log('Datos recibidos para actualizar:', {
+            userId,
+            userData,
+            params: req.params,
+            body: req.body
+        });
+
+        // Validar datos
+        if (!userData.userName || !userData.name || !userData.first_surname || !userData.email) {
+            console.log('Faltan campos requeridos');
+            res.status(400).json({
+                status: "error",
+                message: "Todos los campos son requeridos"
+            });
+            return;
+        }
+
+        const updatedUser = await userModel.updateUser(userId, {
+            userName: userData.userName,
+            name: userData.name,
+            first_surname: userData.first_surname,
+            email: userData.email
+        });
+        
         if (updatedUser) {
-            res.json({ message: "Usuario actualizado correctamente", user: updatedUser });
+            console.log('Usuario actualizado exitosamente:', updatedUser);
+            res.status(200).json({
+                status: "success",
+                data: updatedUser,
+                message: "Usuario actualizado correctamente"
+            });
         } else {
-            res.status(404).json({ message: "Usuario no encontrado" });
+            console.log('Usuario no encontrado:', userId);
+            res.status(404).json({
+                status: "error",
+                message: "Usuario no encontrado"
+            });
         }
-    } catch (error: any) {
-        console.error('Error al actualizar usuario:', error);
-        if (error.code === '23505') {
-            res.status(409).json({ message: "El usuario o email ya existe" });
-        } else {
-            res.status(500).json({ message: "Error al actualizar usuario" });
-        }
+    } catch (error) {
+        console.error('Error en updateUser:', error);
+        res.status(500).json({
+            status: "error",
+            message: error instanceof Error ? error.message : "Error al actualizar usuario"
+        });
     }
 }
 
