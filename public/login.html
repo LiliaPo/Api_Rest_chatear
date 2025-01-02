@@ -43,7 +43,7 @@
             const formData = new FormData(event.target);
             const userData = Object.fromEntries(formData);
 
-            console.log('Enviando login (datos completos):', userData);
+            console.log('Enviando datos de login:', userData);
 
             try {
                 const response = await fetch('/api/users/login', {
@@ -56,17 +56,14 @@
 
                 console.log('Respuesta status:', response.status);
                 const result = await response.json();
-                console.log('Respuesta completa:', result);
+                console.log('Respuesta del servidor:', result);
 
                 if (response.ok) {
                     localStorage.setItem('userId', result.user.id);
                     localStorage.setItem('userName', result.user.userName);
                     window.location.href = '/chat.html';
                 } else {
-                    const errorMessage = result.debug 
-                        ? `${result.message}\nProporcionada: ${result.debug.provided}\nAlmacenada: ${result.debug.stored}`
-                        : result.message;
-                    alert(errorMessage);
+                    alert(result.message + (result.debug ? `\nProporcionada: ${result.debug.provided}\nAlmacenada: ${result.debug.stored}` : ''));
                 }
             } catch (error) {
                 console.error('Error completo:', error);

@@ -131,44 +131,50 @@ export const updateUser: RequestHandler = async (req, res) => {
 export const loginUser: AsyncRequestHandler<{}, LoginResponse> = async (req, res, next) => {
     try {
         const { email, password } = req.body;
+        console.log('\n--- Intento de Login ---');
+        console.log('Email recibido:', email);
+        console.log('Password recibido:', password);
 
         if (!email || !password) {
             res.status(400).json({ message: "Email y contraseña son requeridos" });
         } else {
-            // Primero, buscar el usuario y mostrar el resultado completo
             const queryString = `SELECT * FROM "user" WHERE email = $1`;
-            console.log('Ejecutando query:', queryString, 'con email:', email);
-            
             const result = await pool.query(queryString, [email]);
-            console.log('Resultado completo de la query:', result.rows);
+            
+            console.log('\nResultado de la consulta:', {
+                encontrado: result.rows.length > 0,
+                usuario: result.rows[0] ? {
+                    id: result.rows[0].id,
+                    email: result.rows[0].email,
+                    password: result.rows[0].password,
+                    userName: result.rows[0].userName
+                } : null
+            });
 
             const user = result.rows[0];
-
-            // Log detallado de la comparación
-            console.log('Comparación de contraseñas:', {
-                emailBuscado: email,
-                emailEncontrado: user?.email,
-                contraseñaProporcionada: {
-                    valor: password,
-                    longitud: password?.length,
-                    caracteres: [...password].map(c => ({char: c, code: c.charCodeAt(0)}))
-                },
-                contraseñaAlmacenada: {
-                    valor: user?.password,
-                    longitud: user?.password?.length,
-                    caracteres: [...(user?.password || '')].map(c => ({char: c, code: c.charCodeAt(0)}))
-                }
-            });
 
             if (!user) {
                 res.status(401).json({ message: "Usuario no encontrado" });
             } else if (user.password !== password) {
+                console.log('\nAnálisis detallado de contraseñas:');
+                console.log('Proporcionada:', {
+                    valor: password,
+                    longitud: password.length,
+                    caracteres: [...password].map(c => ({ char: c, code: c.charCodeAt(0) }))
+                });
+                console.log('Almacenada:', {
+                    valor: user.password,
+                    longitud: user.password.length,
+                    caracteres: [...user.password].map(c => ({ char: c, code: c.charCodeAt(0) }))
+                });
+                console.log('¿Coinciden?:', password === user.password);
+                
                 res.status(401).json({ 
                     message: "Contraseña incorrecta",
-                    debug: {
+                    debug: { 
                         provided: password,
                         stored: user.password,
-                        note: "Las contraseñas deben coincidir exactamente"
+                        note: "Revisa que no haya espacios extra o mayúsculas/minúsculas incorrectas"
                     }
                 });
             } else {
