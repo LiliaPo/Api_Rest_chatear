@@ -246,3 +246,35 @@ export const loginUser: AsyncRequestHandler<{}, LoginResponse> = async (req, res
         next(error);
     }
 };
+
+export const toggleUserStatus: RequestHandler = async (req, res, next): Promise<void> => {
+    try {
+        const { userId } = req.params;
+        console.log('Intentando cambiar estado del usuario:', userId);
+
+        const checkQuery = 'SELECT active FROM "user" WHERE id = $1';
+        const checkResult = await pool.query(checkQuery, [userId]);
+
+        if (checkResult.rows.length === 0) {
+            res.status(404).json({ message: "Usuario no encontrado" });
+            return;
+        }
+
+        const query = `
+            UPDATE "user"
+            SET active = NOT active
+            WHERE id = $1
+            RETURNING id, username as "userName", email, active
+        `;
+        
+        const result = await pool.query(query, [userId]);
+        console.log('Resultado de la actualización:', result.rows[0]);
+
+        res.json({
+            message: `Usuario ${result.rows[0].active ? 'activado' : 'desactivado'} correctamente`,
+            user: result.rows[0]
+        });
+    } catch (error) {
+        next(error);
+    }
+};

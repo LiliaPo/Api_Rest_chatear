@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllUsers, getUserById, createUser, updateUser, deleteUser, loginUser } from '../controllers/userController.js';
+import { getAllUsers, getUserById, createUser, updateUser, deleteUser, loginUser, toggleUserStatus } from '../controllers/userController.js';
 
 const userRouter = Router();
 
@@ -9,6 +9,7 @@ userRouter.post('/', createUser);
 userRouter.post('/login', loginUser);
 userRouter.put('/:id', updateUser);
 userRouter.delete('/:id', deleteUser);
+userRouter.put('/:userId/toggle-status', toggleUserStatus);
 
 export default userRouter;
 
