@@ -3,147 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversación</title>
+    <title>Conversaciones - Sistema de Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="/styles/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles/common.css" rel="stylesheet">
     <style>
-        .message-container {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            margin-bottom: 15px;
+        .conversation-container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(184, 167, 224, 0.2);
+            margin: 20px auto;
+            max-width: 1200px;
         }
+
+        .messages-container {
+            background: rgba(248, 246, 255, 0.8);
+            border: 1px solid rgba(184, 167, 224, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            height: 60vh;
+            overflow-y: auto;
+        }
+
         .message {
             margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 70%;
             position: relative;
-            clear: both;
-            max-width: 80%;
         }
-        .message.received {
-            background-color: rgba(232, 245, 233, 0.5);
-            float: left;
-        }
+
         .message.sent {
-            background-color: rgba(227, 242, 253, 0.5);
-            float: right;
+            margin-left: auto;
+            background-color: var(--color-primary);
+            color: white;
         }
-        .message-time {
+
+        .message.received {
+            margin-right: auto;
+            background-color: var(--color-accent);
+            color: white;
+        }
+
+        .message-header {
             font-size: 0.8em;
-            color: #666;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .message-time {
+            font-size: 0.7em;
             margin-top: 5px;
+            opacity: 0.8;
             text-align: right;
         }
-        .message-header {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #333;
+
+        .nav-tabs {
+            border-bottom: 1px solid rgba(184, 167, 224, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--color-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: rgba(184, 167, 224, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--color-primary);
+            background: rgba(184, 167, 224, 0.2);
+            border-bottom: 2px solid var(--color-primary);
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <!-- Botón Volver -->
-        <button onclick="window.location.href='server.html'" class="btn btn-secondary mb-3">
-            <i class="bi bi-arrow-left"></i> Volver
-        </button>
-
-        <div class="row">
-            <!-- Mensajes del Usuario -->
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h3>Mensajes de <span id="userName">Usuario</span></h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="message-container" id="userMessages">
-                            <!-- Los mensajes del usuario se cargarán aquí -->
-                        </div>
-                    </div>
+    <div class="hero">
+        <div class="content">
+            <div class="text-center mb-4">
+                <h1 class="display-4">Conversaciones</h1>
+                <div class="mb-4">
+                    <i class="bi bi-chat-dots" style="font-size: 4rem; color: var(--color-primary);"></i>
                 </div>
             </div>
 
-            <!-- Mensajes del Servidor -->
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Mis Mensajes</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="message-container" id="serverMessages">
-                            <!-- Los mensajes del servidor se mostrarán aquí -->
+            <div class="conversation-container">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#serverMessages">
+                            <i class="bi bi-hdd-rack me-2"></i>
+                            Mensajes del Servidor
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#myMessages">
+                            <i class="bi bi-person me-2"></i>
+                            Mis Mensajes
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="serverMessages">
+                        <div class="messages-container" id="serverMessagesContainer">
+                            <!-- Los mensajes del servidor se cargarán aquí -->
                         </div>
-                        <form id="messageForm" class="mt-3">
-                            <div class="input-group">
-                                <textarea class="form-control" id="messageContent" rows="2" 
-                                        placeholder="Escribe tu mensaje aquí..." required></textarea>
-                                <button class="btn btn-primary" type="submit">
-                                    <i class="bi bi-send"></i> Enviar
-                                </button>
-                            </div>
-                        </form>
                     </div>
+                    <div class="tab-pane fade" id="myMessages">
+                        <div class="messages-container" id="myMessagesContainer">
+                            <!-- Mis mensajes se cargarán aquí -->
+                        </div>
+                    </div>
+                </div>
+
+                <form id="messageForm" class="mt-4">
+                    <div class="input-group">
+                        <textarea class="form-control" id="messageContent" rows="2" 
+                                placeholder="Escribe tu mensaje aquí..." required></textarea>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-send me-2"></i>
+                            Enviar
+                        </button>
+                    </div>
+                </form>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="server.html" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Volver al Panel
+                    </a>
+                    <button onclick="logout()" class="btn btn-accent">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Cerrar Sesión
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = parseInt(urlParams.get('userId'));
-        let userName = '';
+        // Verificar si el usuario está logueado
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
 
-        // Cargar mensajes al iniciar
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!userId || isNaN(userId)) {
-                alert('Usuario no válido');
-                window.location.href = 'server.html';
-                return;
-            }
-
-            await loadUserInfo();
-            loadMessages();
-            setInterval(loadMessages, 3000);
-        });
-
-        // Cargar información del usuario
-        async function loadUserInfo() {
-            try {
-                const response = await fetch(`/api/users/${userId}`);
-                const user = await response.json();
-                userName = user.userName;
-                document.getElementById('userName').textContent = userName;
-            } catch (error) {
-                console.error('Error:', error);
-            }
+        if (!userId || !userName) {
+            window.location.href = 'login.html';
         }
 
-        // Cargar mensajes
+        // Cargar mensajes al iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMessages();
+            setInterval(loadMessages, 3000); // Actualizar cada 3 segundos
+        });
+
         async function loadMessages() {
             try {
                 const response = await fetch(`/api/messages/${userId}`);
                 const data = await response.json();
                 
-                const userMessages = document.getElementById('userMessages');
-                const serverMessages = document.getElementById('serverMessages');
+                const serverMessages = document.getElementById('serverMessagesContainer');
+                const myMessages = document.getElementById('myMessagesContainer');
                 
-                userMessages.innerHTML = '';
+                // Limpiar contenedores
                 serverMessages.innerHTML = '';
+                myMessages.innerHTML = '';
 
                 data.messages.forEach(message => {
-                    const isFromUser = message.sender_id === userId;
-                    const container = isFromUser ? userMessages : serverMessages;
+                    const isFromServer = message.sender_id === 1;
+                    const container = isFromServer ? serverMessages : myMessages;
                     const time = new Date(message.created_at).toLocaleString();
-                    const sender = isFromUser ? userName : 'Servidor';
 
-                    const messageHtml = `
-                        <div class="message ${isFromUser ? 'received' : 'sent'}">
+                    container.innerHTML += `
+                        <div class="message ${isFromServer ? 'received' : 'sent'}">
                             <div class="message-header">
-                                ${sender}
+                                ${isFromServer ? 'Servidor' : 'Tú'}
                             </div>
                             <div class="message-content">
                                 ${message.content}
@@ -153,13 +195,11 @@
                             </div>
                         </div>
                     `;
-
-                    container.insertAdjacentHTML('beforeend', messageHtml);
                 });
 
-                // Scroll al último mensaje en ambos contenedores
-                userMessages.scrollTop = userMessages.scrollHeight;
+                // Scroll al último mensaje
                 serverMessages.scrollTop = serverMessages.scrollHeight;
+                myMessages.scrollTop = myMessages.scrollHeight;
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -177,9 +217,9 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        receiver_id: userId,
+                        receiver_id: 1, // ID del servidor
                         content: content,
-                        sender_id: 1  // ID del servidor
+                        sender_id: parseInt(userId)
                     })
                 });
 
@@ -195,8 +235,11 @@
                 alert('Error al enviar mensaje');
             }
         });
-    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+    </script>
 </body>
 </html> 
