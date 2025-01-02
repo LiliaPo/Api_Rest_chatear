@@ -1,1 +1,40 @@
- 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="/styles/chat.css" rel="stylesheet">
+</head>
+<body>
+    <div class="chat-container row">
+        <!-- Lista de usuarios -->
+        <div class="col-md-3 users-list" id="usersList">
+            <!-- Los usuarios se cargarán aquí dinámicamente -->
+        </div>
+
+        <!-- Área de chat -->
+        <div class="col-md-9 chat-area">
+            <div class="chat-header" id="chatHeader">
+                <!-- Nombre del usuario seleccionado -->
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Los mensajes se cargarán aquí dinámicamente -->
+            </div>
+            <div class="chat-input">
+                <form id="messageForm" class="input-group">
+                    <input type="text" id="messageInput" class="form-control" placeholder="Escribe un mensaje...">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/chat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

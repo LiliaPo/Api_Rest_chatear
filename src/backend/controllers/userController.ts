@@ -1,8 +1,26 @@
 import pool from '../config/configDb.js';
-import { Request, Response } from 'express';
+import { Request, Response, RequestHandler, NextFunction } from 'express';
 import * as userModel from '../models/userModel.js';
+import { User } from '../types/user.js';
 
-export async function getAllUsers(req: Request, res: Response): Promise<void> {
+interface CreateUserResponse {
+    status: string;
+    data?: {
+        id: number;
+        userName: string;
+        email: string;
+    };
+    redirect?: string;
+    message?: string;
+}
+
+type AsyncRequestHandler<P = {}, ResBody = any, ReqBody = any> = (
+    req: Request<P, ResBody, ReqBody>,
+    res: Response<ResBody>,
+    next: NextFunction
+) => Promise<void>;
+
+export const getAllUsers: RequestHandler = async (req, res) => {
     try {
         const users = await userModel.getAllUsers();
         console.log('Usuarios encontrados:', users);
@@ -14,9 +32,9 @@ export async function getAllUsers(req: Request, res: Response): Promise<void> {
             message: "Error al obtener usuarios" 
         });
     }
-}
+};
 
-export async function getUserById(req: Request, res: Response): Promise<void> {
+export const getUserById: RequestHandler = async (req, res) => {
     try {
         const user = await userModel.getUserById(req.params.id);
         if (user) {
@@ -28,25 +46,41 @@ export async function getUserById(req: Request, res: Response): Promise<void> {
         console.error('Error al obtener usuario:', error);
         res.status(500).json({ message: "Error al obtener usuario" });
     }
-}
+};
 
-export const createUser = async (req: Request, res: Response) => {
+export const createUser: AsyncRequestHandler<{}, CreateUserResponse, User> = async (req, res, next) => {
     try {
-        const newUser = await userModel.createUser(req.body);
-        res.status(201).json({
-            status: "success",
-            data: newUser,
-            redirect: '/chat.html'
-        });
+        const { userName, name, first_surname, email, password } = req.body;
+        if (!userName || !name || !first_surname || !email || !password) {
+            res.status(400).json({
+                status: "error",
+                message: "Todos los campos son requeridos"
+            });
+        } else {
+            const newUser = await userModel.createUser({
+                userName, name, first_surname, email, password
+            });
+
+            if (!newUser.id) {
+                throw new Error('Usuario creado sin ID');
+            }
+
+            res.status(201).json({
+                status: "success",
+                data: {
+                    id: newUser.id,
+                    userName: newUser.userName,
+                    email: newUser.email
+                },
+                redirect: '/chat.html'
+            });
+        }
     } catch (error) {
-        res.status(500).json({
-            status: "error",
-            message: error instanceof Error ? error.message : "Error desconocido"
-        });
+        next(error);
     }
 };
 
-export async function deleteUser(req: Request, res: Response): Promise<void> {
+export const deleteUser: RequestHandler = async (req, res) => {
     try {
         const result = await userModel.deleteUser(req.params.id);
         if (result.success) {
@@ -58,61 +92,29 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
         console.error('Error al eliminar usuario:', error);
         res.status(500).json({ message: "Error al eliminar usuario" });
     }
-}
+};
 
-export async function updateUser(req: Request, res: Response): Promise<void> {
+export const updateUser: RequestHandler = async (req, res) => {
     try {
         const userId = req.params.id;
         const userData = req.body;
-        
-        console.log('Datos recibidos para actualizar:', {
-            userId,
-            userData,
-            params: req.params,
-            body: req.body
-        });
 
-        // Validar datos
-        if (!userData.userName || !userData.name || !userData.first_surname || !userData.email) {
-            console.log('Faltan campos requeridos');
-            res.status(400).json({
-                status: "error",
-                message: "Todos los campos son requeridos"
-            });
-            return;
-        }
+        console.log('Intentando actualizar usuario:', { userId, userData });
 
-        const updatedUser = await userModel.updateUser(userId, {
-            userName: userData.userName,
-            name: userData.name,
-            first_surname: userData.first_surname,
-            email: userData.email
-        });
-        
+        const updatedUser = await userModel.updateUser(userId, userData);
+
         if (updatedUser) {
-            console.log('Usuario actualizado exitosamente:', updatedUser);
-            res.status(200).json({
-                status: "success",
-                data: updatedUser,
-                message: "Usuario actualizado correctamente"
-            });
+            res.json(updatedUser);
         } else {
-            console.log('Usuario no encontrado:', userId);
-            res.status(404).json({
-                status: "error",
-                message: "Usuario no encontrado"
-            });
+            res.status(404).json({ message: "Usuario no encontrado" });
         }
     } catch (error) {
-        console.error('Error en updateUser:', error);
-        res.status(500).json({
-            status: "error",
-            message: error instanceof Error ? error.message : "Error al actualizar usuario"
-        });
+        console.error('Error al actualizar:', error);
+        res.status(500).json({ message: "Error al actualizar usuario" });
     }
-}
+};
 
-export async function loginUser(req: Request, res: Response): Promise<void> {
+export const loginUser: RequestHandler = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -142,4 +144,4 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
         console.error('Error en login:', error);
         res.status(500).json({ message: "Error al iniciar sesión" });
     }
-}
+};

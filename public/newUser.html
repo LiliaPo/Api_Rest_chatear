@@ -21,65 +21,51 @@
                         <h3>Registro de Usuario</h3>
                     </div>
                     <div class="card-body">
-                        <form id="registerForm" autocomplete="off">
+                        <form id="registerForm" onsubmit="registerUser(event)">
                             <div class="mb-3">
-                                <label for="userName">Nombre de Usuario</label>
+                                <label for="userName" class="form-label">Nombre de Usuario</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="userName" 
                                        name="userName" 
-                                       required
-                                       autocomplete="off"
-                                       placeholder="Escribe tu nombre de usuario">
+                                       required>
                             </div>
                             <div class="mb-3">
-                                <label for="name">Nombre</label>
+                                <label for="name" class="form-label">Nombre</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="name" 
                                        name="name" 
-                                       required
-                                       autocomplete="given-name"
-                                       placeholder="Escribe tu nombre">
+                                       required>
                             </div>
                             <div class="mb-3">
-                                <label for="first_surname">Apellido</label>
+                                <label for="first_surname" class="form-label">Apellido</label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="first_surname" 
                                        name="first_surname" 
-                                       required
-                                       autocomplete="family-name"
-                                       placeholder="Escribe tu apellido">
+                                       required>
                             </div>
                             <div class="mb-3">
-                                <label for="email">Email</label>
+                                <label for="email" class="form-label">Email</label>
                                 <input type="email" 
                                        class="form-control" 
                                        id="email" 
                                        name="email" 
-                                       required
-                                       autocomplete="email"
-                                       placeholder="Escribe tu email">
+                                       required>
                             </div>
                             <div class="mb-3">
-                                <label for="password">Contraseña</label>
+                                <label for="password" class="form-label">Contraseña</label>
                                 <div class="input-group">
                                     <input type="password" 
-                                           class="form-control border-end-0" 
+                                           class="form-control" 
                                            id="password" 
-                                           name="password"
-                                           required
-                                           pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-                                           placeholder="Escribe tu contraseña"
-                                           title="Mínimo 8 caracteres, una mayúscula, un número y un carácter especial (@$!%*?&)"
-                                           autocomplete="new-password"
-                                           oninput="validatePassword(this)">
-                                    <span class="input-group-text bg-transparent border-start-0">
-                                        <i class="bi bi-eye" id="togglePassword" style="cursor: pointer;"></i>
+                                           name="password" 
+                                           required>
+                                    <span class="input-group-text">
+                                        <i class="bi bi-eye" id="togglePassword"></i>
                                     </span>
                                 </div>
-                                <small id="passwordHelp" class="form-text text-danger"></small>
                             </div>
                             <button type="submit" class="btn btn-primary">Registrarse</button>
                         </form>
@@ -117,23 +103,12 @@
             input.style.borderColor = message ? '#dc3545' : '#198754';
         }
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const password = document.getElementById('password').value;
-            
-            if (!validatePassword(password)) {
-                alert('La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial');
-                return;
-            }
+        async function registerUser(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const userData = Object.fromEntries(formData);
 
-            const userData = {
-                userName: document.getElementById('userName').value,
-                name: document.getElementById('name').value,
-                first_surname: document.getElementById('first_surname').value,
-                email: document.getElementById('email').value,
-                password: password
-            };
+            console.log('Enviando datos:', userData);
 
             try {
                 const response = await fetch('/api/users', {
@@ -144,11 +119,14 @@
                     body: JSON.stringify(userData)
                 });
 
+                console.log('Respuesta status:', response.status);
                 const result = await response.json();
-                
+                console.log('Respuesta:', result);
+
                 if (response.ok) {
-                    alert('Usuario registrado correctamente');
-                    window.location.href = 'notifications.html';
+                    localStorage.setItem('userId', result.data.id);
+                    localStorage.setItem('userName', result.data.userName);
+                    window.location.href = '/chat.html';
                 } else {
                     alert(result.message || 'Error al registrar usuario');
                 }
@@ -156,7 +134,9 @@
                 console.error('Error:', error);
                 alert('Error al registrar usuario');
             }
-        });
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', registerUser);
     </script>
 
     <script>

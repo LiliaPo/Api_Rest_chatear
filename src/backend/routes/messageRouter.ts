@@ -1,9 +1,9 @@
-import Express from 'express';
-import { sendMessage, getUserMessages } from '../controllers/messageController.js';
+import { Router } from 'express';
+import { sendMessage, getMessages } from '../controllers/messageController.js';
 
-const messageRouter = Express.Router();
+const messageRouter = Router();
 
 messageRouter.post('/', sendMessage);
-messageRouter.get('/:userId', getUserMessages);
+messageRouter.get('/:userId/:otherId', getMessages);
 
 export default messageRouter; 

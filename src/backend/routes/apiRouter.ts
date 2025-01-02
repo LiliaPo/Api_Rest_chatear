@@ -1,10 +1,10 @@
-import Express from 'express';
+import { Router } from 'express';
 import userRouter from './userRouter.js';
-import notificationRouter from './notificationRouter.js';
+import messageRouter from './messageRouter.js';
 
-const apiRouter = Express.Router();
+const apiRouter = Router();
 
 apiRouter.use('/users', userRouter);
-apiRouter.use('/notifications', notificationRouter);
+apiRouter.use('/messages', messageRouter);
 
 export default apiRouter;

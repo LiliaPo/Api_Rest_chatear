@@ -34,30 +34,6 @@ export async function getUserById(userId: string): Promise<User | null> {
     return result.rows[0] || null;
 }
 
-// Guardar nuevo usuario
-export async function saveNewUser(data: User): Promise<User> {
-    try {
-        const queryString = `
-            INSERT INTO "user" ("userName", "name", "first_surname", "password", "email") 
-            VALUES ($1, $2, $3, $4, $5) 
-            RETURNING *`;
-        
-        const values = [
-            data.userName,
-            data.name,
-            data.first_surname,
-            data.password,
-            data.email
-        ];
-
-        const result = await pool.query(queryString, values);
-        return result.rows[0];
-    } catch (error) {
-        console.error('Error en saveNewUser:', error);
-        throw error;
-    }
-}
-
 // Eliminar usuario
 export async function deleteUser(userId: string): Promise<DeleteResult> {
     try {
@@ -82,12 +58,6 @@ export async function deleteUser(userId: string): Promise<DeleteResult> {
 // Actualizar usuario
 export async function updateUser(userId: string, data: Partial<User>): Promise<User | null> {
     try {
-        // Convertir el ID a número y verificar que es válido
-        const id = parseInt(userId);
-        if (isNaN(id)) {
-            throw new Error('ID inválido');
-        }
-
         const queryString = `
             UPDATE "user" 
             SET 
@@ -99,30 +69,76 @@ export async function updateUser(userId: string, data: Partial<User>): Promise<U
             RETURNING *;
         `;
 
+        // Obtener el usuario actual primero
+        const currentUser = await getUserById(userId);
+        if (!currentUser) {
+            return null;
+        }
+
         const values = [
-            data.userName,
-            data.name,
-            data.first_surname,
-            data.email,
-            id  // Usamos el ID convertido a número
+            data.userName || currentUser.userName,
+            data.name || currentUser.name,
+            data.first_surname || currentUser.first_surname,
+            data.email || currentUser.email,
+            userId
         ];
 
+        console.log('Actualizando usuario:', {
+            userId,
+            currentValues: currentUser,
+            newValues: values
+        });
+
         const result = await pool.query(queryString, values);
-        return result.rows[0] || null;
+        
+        if (result.rowCount && result.rowCount > 0) {
+            console.log('Usuario actualizado:', result.rows[0]);
+            return result.rows[0];
+        }
+
+        return null;
     } catch (error) {
         console.error('Error en updateUser:', error);
         throw error;
     }
 }
 
-export const createUser = async (userData: any) => {
-    const { userName, name, first_surname, email, password } = userData;
-    const query = `
-        INSERT INTO "user" (userName, name, first_surname, email, password)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING *
-    `;
-    const values = [userName, name, first_surname, email, password];
-    const result = await pool.query(query, values);
-    return result.rows[0];
-};
+export async function createUser(userData: User): Promise<User> {
+    try {
+        console.log('Iniciando creación de usuario:', userData);
+
+        const query = `
+            INSERT INTO "user" ("userName", "name", "first_surname", "email", "password")
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+        `;
+        
+        const values = [
+            userData.userName,
+            userData.name,
+            userData.first_surname,
+            userData.email,
+            userData.password
+        ];
+
+        console.log('Ejecutando query con valores:', {
+            query,
+            values: { ...values, password: '***' } // Ocultar contraseña en logs
+        });
+
+        const result = await pool.query(query, values);
+        
+        if (result.rows[0]) {
+            console.log('Usuario creado exitosamente:', {
+                ...result.rows[0],
+                password: '***'
+            });
+            return result.rows[0];
+        }
+
+        throw new Error('No se pudo crear el usuario');
+    } catch (error) {
+        console.error('Error en createUser:', error);
+        throw error;
+    }
+}
