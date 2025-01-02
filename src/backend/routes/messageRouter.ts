@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { sendMessage, getMessages } from '../controllers/messageController.js';
+import { createMessage, getMessagesByUser, getMessagesBetweenUsers } from '../controllers/messageController.js';
 
 const messageRouter = Router();
 
-messageRouter.post('/', sendMessage);
-messageRouter.get('/:userId/:otherId', getMessages);
+// Rutas específicas primero
+messageRouter.get('/between/:userId1/:userId2', getMessagesBetweenUsers);
+messageRouter.get('/:userId', getMessagesByUser);
+messageRouter.post('/', createMessage);
 
 export default messageRouter; 

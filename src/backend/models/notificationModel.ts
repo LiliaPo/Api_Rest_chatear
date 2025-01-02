@@ -1,21 +1,29 @@
 import pool from "../config/configDb.js";
 
 export interface Notification {
-    id: number;
-    message: string;
-    type: string;
-    created_at: Date;
+    id?: number;
+    sender_id: number;
+    receiver_id: number;
+    content: string;
+    created_at?: Date;
     read?: boolean;
 }
 
-// Crear notificación
-export async function createNotification(message: string, type: string): Promise<Notification> {
-    const queryString = `
-        INSERT INTO notifications (message, type, created_at)
-        VALUES ($1, $2, CURRENT_TIMESTAMP)
-        RETURNING *`;
-    const result = await pool.query(queryString, [message, type]);
-    return result.rows[0];
+export async function createNotification(notification: Notification): Promise<Notification> {
+    try {
+        const query = `
+            INSERT INTO notifications (sender_id, receiver_id, content, created_at, read)
+            VALUES ($1, $2, $3, CURRENT_TIMESTAMP, false)
+            RETURNING *;
+        `;
+        
+        const values = [notification.sender_id, notification.receiver_id, notification.content];
+        const result = await pool.query(query, values);
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error en createNotification:', error);
+        throw error;
+    }
 }
 
 // Asignar notificación a usuario

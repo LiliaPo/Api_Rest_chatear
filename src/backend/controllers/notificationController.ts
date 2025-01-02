@@ -1,23 +1,35 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as notificationModel from '../models/notificationModel.js';
 
-export async function sendNotification(req: Request, res: Response): Promise<void> {
+type AsyncHandler = (req: Request, res: Response, next: NextFunction) => Promise<void>;
+
+export const sendNotification: AsyncHandler = async (req, res, next) => {
     try {
-        const { userId, message, type } = req.body;
-        console.log('Datos recibidos:', { userId, message, type }); // Para debugging
-        
-        const notification = await notificationModel.createNotification(message, type);
-        await notificationModel.assignNotificationToUser(userId, notification.id);
-        
+        const { userIds, message } = req.body;
+
+        if (!userIds?.length || !message) {
+            res.status(400).json({ message: "Se requieren destinatarios y mensaje" });
+            return;
+        }
+
+        const notifications = await Promise.all(
+            userIds.map((userId: number) => 
+                notificationModel.createNotification({
+                    sender_id: 1,
+                    receiver_id: userId,
+                    content: message
+                })
+            )
+        );
+
         res.status(201).json({
-            message: "Notificación enviada correctamente",
-            notification
+            message: "Notificaciones enviadas correctamente",
+            notifications
         });
     } catch (error) {
-        console.error('Error al enviar notificación:', error);
-        res.status(500).json({ message: "Error al enviar la notificación" });
+        next(error);
     }
-}
+};
 
 export async function getUserNotifications(req: Request, res: Response): Promise<void> {
     try {

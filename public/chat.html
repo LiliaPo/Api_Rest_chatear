@@ -3,38 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>Chat - Sistema de Mensajería</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="/styles/chat.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="styles/common.css" rel="stylesheet">
+    <link href="styles/chat.css" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container row">
-        <!-- Lista de usuarios -->
-        <div class="col-md-3 users-list" id="usersList">
-            <!-- Los usuarios se cargarán aquí dinámicamente -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2><i class="bi bi-chat-dots me-2"></i>Chat</h2>
+            <div>
+                <span class="user-name me-3">
+                    <i class="bi bi-person-circle me-2"></i>
+                    <span id="currentUserName"></span>
+                </span>
+                <button onclick="logout()" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Salir
+                </button>
+            </div>
         </div>
-
-        <!-- Área de chat -->
-        <div class="col-md-9 chat-area">
-            <div class="chat-header" id="chatHeader">
-                <!-- Nombre del usuario seleccionado -->
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <!-- Los mensajes se cargarán aquí dinámicamente -->
-            </div>
-            <div class="chat-input">
-                <form id="messageForm" class="input-group">
-                    <input type="text" id="messageInput" class="form-control" placeholder="Escribe un mensaje...">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-send"></i>
+        <div class="chat-content">
+            <div class="users-sidebar">
+                <div class="users-header">
+                    <h5 class="mb-0">Usuarios</h5>
+                    <button onclick="loadUsers()" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise"></i>
                     </button>
-                </form>
+                </div>
+                <div class="users-list" id="usersList">
+                    <!-- Los usuarios se cargarán aquí -->
+                </div>
+            </div>
+            <div class="chat-main">
+                <div class="selected-user" id="selectedUser">
+                    Selecciona un usuario para chatear
+                </div>
+                <div class="messages-container" id="messagesContainer">
+                    <!-- Los mensajes se cargarán aquí -->
+                </div>
+                <div class="input-container">
+                    <form id="messageForm" class="d-flex gap-2">
+                        <input type="text" id="messageInput" class="form-control" 
+                               placeholder="Escribe tu mensaje..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="/js/chat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedUserId = null;
+        const userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+
+        if (!userId || !userName) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('currentUserName').textContent = userName;
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const users = await response.json();
+                
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = users
+                    .filter(user => user.id !== parseInt(userId)) // Excluir usuario actual
+                    .map(user => `
+                        <div class="user-item ${selectedUserId === user.id ? 'active' : ''}" 
+                             onclick="selectUser(${user.id}, '${user.userName}')">
+                            <i class="bi bi-person-circle me-2"></i>
+                            ${user.userName}
+                        </div>
+                    `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function selectUser(id, name) {
+            selectedUserId = id;
+            document.getElementById('selectedUser').innerHTML = `
+                <i class="bi bi-person-circle me-2"></i>
+                Chateando con ${name}
+            `;
+            loadMessages();
+            document.querySelectorAll('.user-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.onclick.toString().includes(id)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        async function loadMessages() {
+            if (!selectedUserId) return;
+
+            try {
+                const url = `/api/messages/between/${userId}/${selectedUserId}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = '';
+
+                if (data.messages && data.messages.length > 0) {
+                    data.messages.forEach(message => {
+                        const isOwnMessage = message.sender_id === parseInt(userId);
+                        const time = new Date(message.created_at).toLocaleString();
+
+                        container.innerHTML += `
+                            <div class="message ${isOwnMessage ? 'sent' : 'received'}">
+                                <div class="message-content">
+                                    ${message.content}
+                                </div>
+                                <div class="message-time">
+                                    <small>${isOwnMessage ? 'Tú' : message.sender_name}</small>
+                                    ${time}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                console.error('Error completo:', error);
+            }
+        }
+
+        document.getElementById('messageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!selectedUserId) {
+                alert('Por favor, selecciona un usuario para chatear');
+                return;
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+
+            if (!content) return;
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sender_id: parseInt(userId),
+                        receiver_id: selectedUserId,
+                        content: content
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Añadir el mensaje inmediatamente al contenedor
+                    const container = document.getElementById('messagesContainer');
+                    const time = new Date().toLocaleString();
+                    
+                    container.innerHTML += `
+                        <div class="message sent">
+                            <div class="message-content">
+                                ${content}
+                            </div>
+                            <div class="message-time">
+                                ${time}
+                            </div>
+                        </div>
+                    `;
+
+                    // Limpiar input y hacer scroll
+                    messageInput.value = '';
+                    container.scrollTop = container.scrollHeight;
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error al enviar mensaje');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al enviar mensaje');
+            }
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Cargar usuarios y mensajes iniciales
+        loadUsers();
+        setInterval(loadMessages, 3000);
+    </script>
 </body>
 </html> 
